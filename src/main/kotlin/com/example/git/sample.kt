@@ -1,3 +1,5 @@
+package com.example.git
+
 import org.eclipse.egit.github.core.RepositoryContents
 import org.eclipse.egit.github.core.RepositoryContents.*
 import org.eclipse.egit.github.core.RepositoryId

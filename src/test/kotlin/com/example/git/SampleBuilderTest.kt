@@ -1,6 +1,7 @@
-import org.junit.jupiter.api.Test
+package com.example.git
 
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 internal class SampleBuilderTest {
 

@@ -1,4 +1,4 @@
 .idea
 gradle
 out
-src/main/resources/prop.txt
+src/main/resources/com/example/git/prop.txt
