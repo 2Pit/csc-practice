@@ -4,6 +4,7 @@ import org.jetbrains.exposed.dao.IntIdTable
 
 
 object Files : IntIdTable() {
+    val branchId = reference("branch_id", Branches)
     val path = varchar("path", 50)
     val name = varchar("name", 50)
     val extension = varchar("extension", 50)
@@ -11,6 +12,7 @@ object Files : IntIdTable() {
 }
 
 data class File(
+    val branchId: Int,
     var path: String,
     var name: String,
     var extension: String,

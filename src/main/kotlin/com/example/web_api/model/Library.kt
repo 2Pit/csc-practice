@@ -4,7 +4,7 @@ import org.jetbrains.exposed.dao.IntIdTable
 
 
 object Libraries : IntIdTable() {
-    val ownerRepo = varchar("ownerRepo", 50)
+    val ownerRepoId = reference("owner_repo_id", Repositories)
     val name = varchar("name", 50)
     val description = varchar("description", 50)
     val tags = text("tags")
@@ -12,7 +12,7 @@ object Libraries : IntIdTable() {
 
 data class Library(
     val id: Int,
-    val ownerRepo: String,
+    val ownerRepoId: Int,
     val name: String,
     val description: String,
     val tags: String

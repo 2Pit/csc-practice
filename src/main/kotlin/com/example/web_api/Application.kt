@@ -1,26 +1,27 @@
 package com.example.web_api
 
-import com.example.web_api.model.Samples
-import com.example.web_api.service.LibriaryService
-import com.example.web_api.service.SampleService
-import io.ktor.application.*
-import io.ktor.response.*
-import io.ktor.routing.*
-import io.ktor.http.*
-import io.ktor.auth.*
-import com.fasterxml.jackson.databind.*
-import io.ktor.jackson.*
-import io.ktor.features.*
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.transactions.transaction
-import com.example.web_api.web.sample
+import com.example.web_api.service.*
+import com.example.web_api.web.myRoute
+import com.fasterxml.jackson.databind.SerializationFeature
+import io.ktor.application.Application
+import io.ktor.application.call
+import io.ktor.application.install
+import io.ktor.auth.Authentication
+import io.ktor.features.ContentNegotiation
+import io.ktor.http.ContentType
+import io.ktor.jackson.jackson
+import io.ktor.response.respond
+import io.ktor.response.respondText
+import io.ktor.routing.Routing
+import io.ktor.routing.get
+import io.ktor.routing.routing
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
-    val database = initDB()
+    DB.init()
 
     install(Authentication) {
     }
@@ -31,33 +32,16 @@ fun Application.module(testing: Boolean = false) {
         }
     }
 
-    val sampleService = SampleService()
-    val libriaryService = LibriaryService()
-
     install(Routing) {
-        sample(sampleService)
+        myRoute("/branches", BranchService())
+        myRoute("/files", FileService())
+        myRoute("/libraries", LibraryService())
+        myRoute("/repositories", RepositoryService())
+        myRoute("/samples", SampleService())
+        myRoute("/snapshots", SnapshotService())
     }
 
     routing {
-        route("/repositories") {
-            get {
-                call.respondText("repositories", contentType = ContentType.Text.Plain)
-            }
-        }
-
-        route("/libraries") {
-            get {
-                call.respondText("libraries", contentType = ContentType.Text.Plain)
-            }
-        }
-
-        route("/request") {
-            post {
-                call.respondText("request", contentType = ContentType.Text.Plain)
-            }
-        }
-
-
         get("/") {
             call.respondText("HELLO WORLD!", contentType = ContentType.Text.Plain)
         }
@@ -66,28 +50,5 @@ fun Application.module(testing: Boolean = false) {
             call.respond(mapOf("hello" to "world"))
         }
     }
-}
-
-
-fun initDB(): Database {
-    val database = Database.connect("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", driver = "org.h2.Driver")
-
-    transaction {
-        // print sql to std-out
-        addLogger(StdOutSqlLogger)
-
-        SchemaUtils.create(Samples)
-
-        Samples.insert {
-            it[lib] = "lib"
-            it[name] = "name"
-            it[buildSystem] = "buildSystem"
-            it[path] = "path"
-            it[description] = "description"
-            it[tags] = "tags"
-        }
-    }
-
-    return database
 }
 
