@@ -10,6 +10,7 @@ object Repositories : IntIdTable() {
 }
 
 data class Repository(
+    val id: Int,
     val owner: String,
     val repo: String
 )

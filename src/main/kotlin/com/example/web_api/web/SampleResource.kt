@@ -14,7 +14,7 @@ fun Route.myRoute(path: String, service: AbstractService<*>) {
 
         get("/") {
             val params = call.parameters.toMap()
-            call.respond(service.get(params))
+            call.respond(service.get(params, null))
         }
 
         get("/{id}") {

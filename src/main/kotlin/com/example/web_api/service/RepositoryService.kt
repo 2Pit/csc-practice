@@ -7,6 +7,7 @@ import org.jetbrains.exposed.sql.ResultRow
 class RepositoryService : AbstractService<Repository>(Repositories) {
     override fun convert(row: ResultRow): Repository {
         return Repository(
+            id = row[Repositories.id].value,
             owner = row[Repositories.owner],
             repo = row[Repositories.repo]
         )

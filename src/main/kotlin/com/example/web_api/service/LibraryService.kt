@@ -2,9 +2,10 @@ package com.example.web_api.service
 
 import com.example.web_api.model.Libraries
 import com.example.web_api.model.Library
+import com.example.web_api.model.Repositories
 import org.jetbrains.exposed.sql.ResultRow
 
-class LibraryService : AbstractService<Library>(Libraries) {
+class LibraryService : AbstractParenService<Library>(Libraries, Libraries.ownerRepoId, Repositories) {
     override fun convert(row: ResultRow): Library {
         return Library(
             id = row[Libraries.id].value,

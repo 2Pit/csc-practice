@@ -10,11 +10,8 @@ object Branches : IntIdTable() {
 }
 
 data class Branch(
+    val id: Int,
     val repoId: Int,
     val name: String,
     val sha: String
 )
-
-
-
-

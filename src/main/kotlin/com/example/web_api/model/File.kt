@@ -12,6 +12,7 @@ object Files : IntIdTable() {
 }
 
 data class File(
+    val id: Int,
     val branchId: Int,
     var path: String,
     var name: String,

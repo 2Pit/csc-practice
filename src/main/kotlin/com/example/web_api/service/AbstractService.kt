@@ -15,16 +15,14 @@ abstract class AbstractService<T : Any>(private val table: IntIdTable) {
         }
     }
 
-    open fun get(params: Map<String, List<String>>): List<T> {
+    open fun get(params: Map<String, List<String>>, upperQuery: Query?): List<T> {
+        val query = upperQuery ?: buildQuery()
         val ids = params["ids"]
         val afterId = params["after_id"]?.first()
 
-        val query = table.selectAll().limit(50)
-
-        if (afterId != null) { // TODO fix
+        afterId?.apply {
             query.andWhere { table.id gt afterId.toInt() }
         }
-
         ids?.apply {
             query.andWhere { table.id inList (ids.map { it.toInt() }) }
         }
@@ -34,5 +32,28 @@ abstract class AbstractService<T : Any>(private val table: IntIdTable) {
 
     protected abstract fun convert(row: ResultRow): T
 
+    private fun buildQuery() = table.selectAll().limit(50)
+
     private infix fun <T : Comparable<T>> Column<EntityID<T>>.gt(t: T): Op<Boolean> = GreaterOp(this, wrap(t))
+}
+
+
+abstract class AbstractParenService<T : Any>(
+    private val table: IntIdTable,
+    private val parentColumn: Column<EntityID<Int>>,
+    private val parentTable: IntIdTable
+) : AbstractService<T>(table) {
+
+    override fun get(params: Map<String, List<String>>, upperQuery: Query?): List<T> {
+        val query = upperQuery ?: buildQuery()
+        val parentId = params["parent_id"]?.first()
+        parentId?.apply {
+            query.andWhere { parentTable.id eq parentId.toInt() }
+        }
+        return super.get(params, query)
+    }
+
+    private fun buildQuery(): Query {
+        return (table innerJoin parentTable).select { parentColumn eq parentTable.id }.limit(50)
+    }
 }
