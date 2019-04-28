@@ -28,8 +28,8 @@ POST http://0.0.0.0:8090/add/
 Content-Type: application/json
 
 {
-  "repo": 1,
-  "lib": 1,
+  "repoId": 1,
+  "libId": 1,
   "samples": [
     {
       "name": "new sample",

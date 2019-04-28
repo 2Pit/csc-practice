@@ -5,7 +5,7 @@ import com.example.web_api.model.Branches
 import com.example.web_api.model.Repositories
 import org.jetbrains.exposed.sql.ResultRow
 
-class BranchService : AbstractParenService<Branch>(Branches, Branches.repoId, Repositories) {
+object BranchService : AbstractParenService<Branch>(Branches, Branches.repoId, Repositories) {
     override fun convert(row: ResultRow): Branch {
         return Branch(
             id = row[Branches.id].value,

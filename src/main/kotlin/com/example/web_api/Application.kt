@@ -1,6 +1,7 @@
 package com.example.web_api
 
-import com.example.web_api.model.Branch
+import com.example.web_api.model.AddRequest
+import com.example.web_api.pipeline.Checker
 import com.example.web_api.service.*
 import com.example.web_api.web.myRoute
 import com.fasterxml.jackson.databind.SerializationFeature
@@ -10,6 +11,7 @@ import io.ktor.application.install
 import io.ktor.auth.Authentication
 import io.ktor.features.ContentNegotiation
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.jackson.jackson
 import io.ktor.request.receive
 import io.ktor.response.respond
@@ -36,27 +38,23 @@ fun Application.module(testing: Boolean = false) {
     }
 
     install(Routing) {
-        myRoute("/branches", BranchService())
-        myRoute("/files", FileService())
-        myRoute("/libraries", LibraryService())
-        myRoute("/repositories", RepositoryService())
-        myRoute("/samples", SampleService())
+        myRoute("/branches", BranchService)
+        myRoute("/files", FileService)
+        myRoute("/libraries", LibraryService)
+        myRoute("/repositories", RepositoryService)
+        myRoute("/samples", SampleService)
     }
 
     routing {
 
         post("/add") {
-            val add = call.receive<Map<String, Any>>()
-            val rep = when (val repo = add["repo"]) {
-                is Int -> RepositoryService().getById(repo)
-                else -> RepositoryService().getById(1)
+            val add = call.receive<AddRequest>()
+            if (((add.repoId == null) xor (add.repo == null)) && ((add.libId == null) xor (add.lib == null))) {
+                Checker.checker.execute(add, Unit)
+            } else {
+                call.respond(HttpStatusCode.BadRequest)
             }
-            val request = call.request
-        }
-
-        post("/test/branch") {
-            val branch = call.receive<Branch>()
-            val i = 9
+            call.respond(HttpStatusCode.OK)
         }
 
         get("/") {

@@ -5,7 +5,7 @@ import com.example.web_api.model.File
 import com.example.web_api.model.Files
 import org.jetbrains.exposed.sql.ResultRow
 
-class FileService : AbstractParenService<File>(Files, Files.branchId, Branches) {
+object FileService : AbstractParenService<File>(Files, Files.branchId, Branches) {
     override fun convert(row: ResultRow): File {
         return File(
             id = row[Files.id].value,
