@@ -4,6 +4,7 @@ import com.example.web_api.model.AddRequest
 import com.example.web_api.pipeline.Checker
 import com.example.web_api.service.*
 import com.example.web_api.web.myRoute
+import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.SerializationFeature
 import io.ktor.application.Application
 import io.ktor.application.call
@@ -34,6 +35,7 @@ fun Application.module(testing: Boolean = false) {
     install(ContentNegotiation) {
         jackson {
             enable(SerializationFeature.INDENT_OUTPUT)
+            propertyNamingStrategy = PropertyNamingStrategy.SNAKE_CASE
         }
     }
 

@@ -2,9 +2,14 @@ package com.example.web_api.model
 
 import org.jetbrains.exposed.dao.IntIdTable
 
-
+/**
+ * The Libraries table.
+ *
+ * ownerRepoId and path is index.
+ */
 object Libraries : IntIdTable() {
     val ownerRepoId = reference("owner_repo_id", Repositories)
+    val path = varchar("path", 50)
     val name = varchar("name", 50)
     val description = varchar("description", 50)
     val tags = text("tags")
@@ -13,6 +18,7 @@ object Libraries : IntIdTable() {
 data class Library(
     val id: Int,
     val ownerRepoId: Int,
+    val path: String,
     val name: String,
     val description: String,
     val tags: String

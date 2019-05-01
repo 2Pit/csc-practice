@@ -69,18 +69,21 @@ object DB {
 
             Libraries.insert {
                 it[ownerRepoId] = EntityID(1, Repositories)
+                it[path] = "path1"
                 it[name] = "name1"
                 it[description] = "description1"
                 it[tags] = "tags1"
             }
             Libraries.insert {
                 it[ownerRepoId] = EntityID(2, Repositories)
+                it[path] = "path2"
                 it[name] = "name2"
                 it[description] = "description2"
                 it[tags] = "tags2"
             }
             Libraries.insert {
                 it[ownerRepoId] = EntityID(3, Repositories)
+                it[path] = "path3"
                 it[name] = "name3"
                 it[description] = "description3"
                 it[tags] = "tags3"

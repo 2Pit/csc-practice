@@ -20,7 +20,7 @@ GET http://0.0.0.0:8090/branches/?after_id=1
 
 ###
 
-GET http://0.0.0.0:8090/branches/?parent_id=2
+GET http://0.0.0.0:8090/branches/?repo_id=2
 
 ###
 
@@ -28,12 +28,12 @@ POST http://0.0.0.0:8090/add/
 Content-Type: application/json
 
 {
-  "repoId": 1,
-  "libId": 1,
+  "repo_id": 1,
+  "lib_id": 1,
   "samples": [
     {
       "name": "new sample",
-      "buildSystem": "gradle",
+      "build_system": "gradle",
       "path": "some path",
       "description": "desc",
       "tags": "tag1, tag2"

@@ -44,9 +44,11 @@ abstract class AbstractParenService<T : Any>(
     private val parentTable: IntIdTable
 ) : AbstractService<T>(table) {
 
+    abstract val parentIdKey: String
+
     override fun get(params: Map<String, List<String>>, upperQuery: Query?): List<T> {
         val query = upperQuery ?: buildQuery()
-        val parentId = params["parent_id"]?.first()
+        val parentId = params[parentIdKey]?.first()
         parentId?.apply {
             query.andWhere { parentTable.id eq parentId.toInt() }
         }

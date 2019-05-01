@@ -24,6 +24,7 @@ object Checker {
                 }
             }
         }
+
         checker.intercept(libChecker) {
             val addRequest = this.context
             if (addRequest.repoId != null && addRequest.libId == null) {
