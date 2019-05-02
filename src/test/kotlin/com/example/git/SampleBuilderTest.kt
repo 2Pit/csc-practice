@@ -7,45 +7,48 @@ internal class SampleBuilderTest {
 
     @Test
     fun testGetBlobs() {
-        val sample = SampleBuilder.buildSample(SampleRequest("2Pit", "test", "a/b/"))
+        val result = SampleBuilder.buildSample(SampleRequest("2Pit", "test", "a/b/"))
         assertEquals(
-            sample.files,
             listOf(
                 SampleFile("B1.txt", fileContent("B1")),
                 SampleFile("B2.txt", fileContent("B2")),
                 SampleFile("c/C1.txt", fileContent("C1")),
                 SampleFile("c/C2.txt", fileContent("C2"))
-            )
+            ),
+            result.files
         )
     }
 
     @Test
     fun testGetBlobs_2() {
-        val sample = SampleBuilder.buildSample(SampleRequest("2Pit", "test", ""))
+        val result = SampleBuilder.buildSample(SampleRequest("2Pit", "test", "/"))
         assertEquals(
-            sample.files,
             listOf(
+                SampleFile("0.txt", fileContent("0")),
                 SampleFile("a/A1.txt", fileContent("A1")),
                 SampleFile("a/A2.txt", fileContent("A2")),
                 SampleFile("a/b/B1.txt", fileContent("B1")),
                 SampleFile("a/b/B2.txt", fileContent("B2")),
                 SampleFile("a/b/c/C1.txt", fileContent("C1")),
                 SampleFile("a/b/c/C2.txt", fileContent("C2"))
-            )
+            ),
+            result.files
         )
     }
 
     @Test
     fun testGetBlobs_3() {
-        val sample = SampleBuilder.buildSample(SampleRequest("2Pit", "test", "a/"))
+        val result = SampleBuilder.buildSample(SampleRequest("2Pit", "test", "a/"))
         assertEquals(
-            sample.files,
             listOf(
+                SampleFile("A1.txt", fileContent("A1")),
+                SampleFile("A2.txt", fileContent("A2")),
                 SampleFile("b/B1.txt", fileContent("B1")),
                 SampleFile("b/B2.txt", fileContent("B2")),
                 SampleFile("b/c/C1.txt", fileContent("C1")),
                 SampleFile("b/c/C2.txt", fileContent("C2"))
-            )
+            ),
+            result.files
         )
     }
 

@@ -1,7 +1,8 @@
 package com.example.git
 
 import org.eclipse.egit.github.core.RepositoryContents
-import org.eclipse.egit.github.core.RepositoryContents.*
+import org.eclipse.egit.github.core.RepositoryContents.TYPE_DIR
+import org.eclipse.egit.github.core.RepositoryContents.TYPE_FILE
 import org.eclipse.egit.github.core.RepositoryId
 import org.eclipse.egit.github.core.TreeEntry
 import org.eclipse.egit.github.core.client.GitHubClient
@@ -58,12 +59,11 @@ object SampleBuilder {
 
         val files = mutableListOf<SampleFile>()
         firstLevel[TYPE_FILE]?.mapTo(files) { downloadFile(repository, it) }
-        (firstLevel[TYPE_DIR] ?: emptyList())
-            .forEach { rc ->
-                getBlobs(repository, rc.sha).mapTo(files) { treeEntry ->
-                    downloadFile(repository, treeEntry, rc.path)
-                }
+        firstLevel[TYPE_DIR]?.forEach { rc ->
+            getBlobs(repository, rc.sha).mapTo(files) { treeEntry ->
+                downloadFile(repository, treeEntry, rc.path)
             }
+        }
 
         return Sample(files)
     }
