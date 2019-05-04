@@ -8,9 +8,9 @@ data class AddRequest(
     val samples: List<SampleNew>
 )
 
-class NewRepo(val owner: String, val repo: String)
+data class NewRepo(val owner: String, val repo: String, val branches: List<String>)
 
-class NewLib(val name: String, val description: String, val tags: String)
+data class NewLib(val name: String, val description: String, val tags: String)
 
 data class SampleNew(
     val name: String,

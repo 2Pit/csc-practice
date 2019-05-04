@@ -1,5 +1,9 @@
 package com.example.git
 
+import com.example.web_api.pipeline.git.Sample
+import com.example.web_api.pipeline.git.SampleBuilder
+import com.example.web_api.pipeline.git.SampleFile
+import com.example.web_api.pipeline.git.SampleRequest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -50,6 +54,23 @@ internal class SampleBuilderTest {
             ),
             result.files
         )
+    }
+
+    @Test
+    fun testWrite() {
+        val sampleRequest = SampleRequest("2Pit", "test", "a/")
+        val sample = Sample(
+            listOf(
+                SampleFile("A1.txt", fileContent("A1")),
+                SampleFile("A2.txt", fileContent("A2")),
+                SampleFile("b/B1.txt", fileContent("B1")),
+                SampleFile("b/B2.txt", fileContent("B2")),
+                SampleFile("b/c/C1.txt", fileContent("C1")),
+                SampleFile("b/c/C2.txt", fileContent("C2"))
+            )
+        )
+
+        SampleBuilder.write(sampleRequest, sample)
     }
 
     private fun fileContent(name: String): String {

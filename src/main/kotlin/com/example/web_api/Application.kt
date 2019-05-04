@@ -21,6 +21,7 @@ import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.routing
+import kotlinx.coroutines.async
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -50,13 +51,16 @@ fun Application.module(testing: Boolean = false) {
     routing {
 
         post("/add") {
-            val add = call.receive<AddRequest>()
-            if (((add.repoId == null) xor (add.repo == null)) && ((add.libId == null) xor (add.lib == null))) {
-                Checker.checker.execute(add, Unit)
+            val addRequest = call.receive<AddRequest>()
+            if (((addRequest.repoId == null) xor (addRequest.repo == null))
+                && ((addRequest.libId == null) xor (addRequest.lib == null))
+            ) {
+                val jobId = JobService.create(addRequest.toString())
+                async { Checker.checker.execute(addRequest, Unit) }
+                call.respond(mapOf("id" to jobId))
             } else {
                 call.respond(HttpStatusCode.BadRequest)
             }
-            call.respond(HttpStatusCode.OK)
         }
 
         get("/") {

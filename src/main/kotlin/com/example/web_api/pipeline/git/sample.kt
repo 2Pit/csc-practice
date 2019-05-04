@@ -1,5 +1,7 @@
-package com.example.git
+package com.example.web_api.pipeline.git
 
+import com.example.git.Property
+import com.example.git.base64toUtf8
 import org.eclipse.egit.github.core.RepositoryContents
 import org.eclipse.egit.github.core.RepositoryContents.TYPE_DIR
 import org.eclipse.egit.github.core.RepositoryContents.TYPE_FILE
@@ -8,6 +10,7 @@ import org.eclipse.egit.github.core.TreeEntry
 import org.eclipse.egit.github.core.client.GitHubClient
 import org.eclipse.egit.github.core.service.ContentsService
 import org.eclipse.egit.github.core.service.DataService
+import java.io.File
 
 /**
  * The Sample Request contains into to build a Sample.
@@ -66,6 +69,20 @@ object SampleBuilder {
         }
 
         return Sample(files)
+    }
+
+    fun write(request: SampleRequest, sample: Sample) {
+        sample.files.forEach { sf ->
+            val file = File(
+                "/home/petr/Documents/Jenkins/repo_sample/${request.owner}/${request.repo}/master/",
+                sf.path
+            )
+            if (!file.exists()) {
+                file.parentFile.mkdirs()
+                file.createNewFile()
+            }
+            file.printWriter().use { sf.content }
+        }
     }
 
     private fun getBlobs(repository: RepositoryId, sha: String): List<TreeEntry> {

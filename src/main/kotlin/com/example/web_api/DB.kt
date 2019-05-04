@@ -14,7 +14,7 @@ object DB {
             addLogger(StdOutSqlLogger)
 
 
-            SchemaUtils.create(Branches, Files, Libraries, Repositories, Samples)
+            SchemaUtils.create(Branches, Files, Libraries, Repositories, Samples, Jobs)
 
             Repositories.insert {
                 it[owner] = "owner1"
