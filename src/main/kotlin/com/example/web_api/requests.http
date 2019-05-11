@@ -28,13 +28,20 @@ POST http://0.0.0.0:8090/add/
 Content-Type: application/json
 
 {
-  "repo_id": 1,
-  "lib_id": 1,
+  "repo": {
+    "owner": "spekframework",
+    "name": "spek",
+    "branch": "master"
+  },
+  "lib": {
+    "owner": "spekframework",
+    "name": "spek"
+  },
   "samples": [
     {
-      "name": "new sample",
+      "name": "jvm",
       "build_system": "gradle",
-      "path": "some path",
+      "path": "samples/jvm/",
       "description": "desc",
       "tags": "tag1, tag2"
     }

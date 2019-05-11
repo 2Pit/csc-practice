@@ -41,5 +41,8 @@ object Property {
         .map { it.split("=") }
         .associate { it[0] to it[1] }
 
-    val githubToken = props["github.oauth2.token"]
+    val githubToken = props["github.oauth2.token"]!!
+    val jenkinsAuth = props["jenkins.basic.auth"]!!
+    val jenkinsRunTaskToken = props["jenkins.run.token"]!!
+    val jenkinsPort = props["jenkins.port"]!!.toInt()
 }

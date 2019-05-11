@@ -16,18 +16,34 @@ import java.io.File
  * The Sample Request contains into to build a Sample.
  *
  * @property owner repository owner
- * @property repo repository name
+ * @property name repository name
  * @property path path to sample
  */
 data class SampleRequest(
     val owner: String,
-    val repo: String,
+    val name: String,
+    val branch: String,
     val path: String
 ) {
+    companion object {
+        fun new(owner: String, name: String, branch: String, path: String): SampleRequest {
+            return if (path.endsWith("/")) {
+                SampleRequest(owner, name, branch, path)
+            } else {
+                SampleRequest(owner, name, branch, "$path/")
+            }
+        }
+    }
+
     init {
         assert(path.endsWith("/"))
     }
+
+    fun getPathAtLocatRepo(): String {
+        return "$owner/$name/$branch/"
+    }
 }
+
 
 /**
  * The Sample class.
@@ -52,7 +68,7 @@ object SampleBuilder {
     private val dataService = DataService(client)
 
     fun buildSample(request: SampleRequest): Sample {
-        val repository = RepositoryId.create(request.owner, request.repo)
+        val repository = RepositoryId.create(request.owner, request.name)
         val firstLevel = contentService.getContents(repository, request.path)
             .groupBy { it.type }
 
@@ -74,14 +90,17 @@ object SampleBuilder {
     fun write(request: SampleRequest, sample: Sample) {
         sample.files.forEach { sf ->
             val file = File(
-                "/home/petr/Documents/Jenkins/repo_sample/${request.owner}/${request.repo}/master/",
+                "/home/petr/Documents/Jenkins/repo_sample/${request.getPathAtLocatRepo()}",
                 sf.path
             )
             if (!file.exists()) {
                 file.parentFile.mkdirs()
                 file.createNewFile()
             }
-            file.printWriter().use { sf.content }
+            file.printWriter().use { out -> out.print(sf.content) }
+//            if (file.name == "gradlew") { // TODO fix gradle running
+            file.setExecutable(true)
+//            }
         }
     }
 

@@ -1,7 +1,8 @@
 package com.example.web_api
 
-import com.example.web_api.model.AddRequest
+import com.example.web_api.pipeline.AddRequest
 import com.example.web_api.pipeline.Checker
+import com.example.web_api.pipeline.CheckerContext
 import com.example.web_api.service.*
 import com.example.web_api.web.myRoute
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
@@ -12,7 +13,6 @@ import io.ktor.application.install
 import io.ktor.auth.Authentication
 import io.ktor.features.ContentNegotiation
 import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
 import io.ktor.jackson.jackson
 import io.ktor.request.receive
 import io.ktor.response.respond
@@ -41,7 +41,7 @@ fun Application.module(testing: Boolean = false) {
     }
 
     install(Routing) {
-        myRoute("/branches", BranchService)
+        myRoute("/branches", SnapshotService)
         myRoute("/files", FileService)
         myRoute("/libraries", LibraryService)
         myRoute("/repositories", RepositoryService)
@@ -52,15 +52,9 @@ fun Application.module(testing: Boolean = false) {
 
         post("/add") {
             val addRequest = call.receive<AddRequest>()
-            if (((addRequest.repoId == null) xor (addRequest.repo == null))
-                && ((addRequest.libId == null) xor (addRequest.lib == null))
-            ) {
-                val jobId = JobService.create(addRequest.toString())
-                async { Checker.checker.execute(addRequest, Unit) }
-                call.respond(mapOf("id" to jobId))
-            } else {
-                call.respond(HttpStatusCode.BadRequest)
-            }
+            val jobId = JobService.create(addRequest.toString())
+            async { Checker.checker.execute(CheckerContext(jobId, addRequest), Unit) }
+            call.respond(mapOf("id" to jobId))
         }
 
         get("/") {
