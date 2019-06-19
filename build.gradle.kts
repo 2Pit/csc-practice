@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 val logback_version: String by project
 val ktor_version: String by project
 val kotlin_version: String by project
@@ -5,7 +7,7 @@ val exposed_version: String by project
 
 plugins {
     application
-    kotlin("jvm") version "1.3.21"
+    kotlin("jvm") version "1.3.31"
 }
 
 group = "com.example"
