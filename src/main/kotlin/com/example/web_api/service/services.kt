@@ -61,100 +61,69 @@ abstract class AbstractParenService<T : Any>(
     }
 }
 
-object LibraryService : AbstractService<Library>(Libraries) {
-    override fun convert(row: ResultRow): Library {
-        return Library(
-            id = row[Libraries.id].value,
-            owner = row[Libraries.owner],
-            name = row[Libraries.name],
-            description = row[Libraries.description],
-            topics = row[Libraries.topics]
-        )
-    }
-
-    fun getBy(owner: String, name: String): Library? {
-        var ans: Library? = null
-        transaction {
-            ans = Libraries.select { Libraries.owner eq owner }
-                .andWhere { Libraries.name eq name }
-                .toList()
-                .firstOrNull()
-                ?.let { convert(it) }
-        }
-        return ans
-    }
-}
-
-object RepositoryService : AbstractService<Repository>(Repositories) {
-    override fun convert(row: ResultRow): Repository {
-        return Repository(
-            id = row[Repositories.id].value,
-            owner = row[Repositories.owner],
-            name = row[Repositories.name],
-            branch = row[Repositories.branch]
-        )
-    }
-
-    fun getBy(owner: String, name: String, branch: String): Repository? {
-        var ans: Repository? = null
-        transaction {
-            ans = Repositories.select { Repositories.owner eq owner }
-                .andWhere { Repositories.name eq name }
-                .andWhere { Repositories.branch eq branch }
-                .map { convert(it) }
-                .firstOrNull()
-        }
-        return ans
-    }
-}
-
-object SampleService : AbstractParenService<Sample>(Samples, Samples.repoId, Repositories) {
-    override val parentIdKey: String
-        get() = "lib_id"
-
-    override fun convert(row: ResultRow): Sample {
-        return Sample(
-            id = row[Samples.id].value,
-            repoId = row[Samples.repoId].value,
-            libId = row[Samples.libId].value,
-            name = row[Samples.name],
-            buildSystem = row[Samples.buildSystem],
-            path = row[Samples.path],
-            description = row[Samples.description],
-            topics = row[Samples.topics]
-        )
-    }
-}
-
-object SnapshotService : AbstractParenService<Snapshot>(Snapshots, Snapshots.sampleId, Samples) {
-    override val parentIdKey: String
-        get() = "sample_id"
-
-    override fun convert(row: ResultRow): Snapshot {
-        return Snapshot(
-            id = row[Snapshots.id].value,
-            sampleId = row[Snapshots.sampleId].value,
-            sha = row[Snapshots.sha],
-            status = row[Snapshots.status]
-        )
-    }
-}
-
-object FileService : AbstractParenService<File>(Files, Files.snapshotId, Snapshots) {
-    override val parentIdKey: String
-        get() = "branch_id"
-
-    override fun convert(row: ResultRow): File {
-        return File(
-            id = row[Files.id].value,
-            snapshotId = row[Files.snapshotId].value,
-            path = row[Files.path],
-            name = row[Files.name],
-            extension = row[Files.extension],
-            content = row[Files.content]
-        )
-    }
-}
+//
+//object LocationService : AbstractService<LocationRow>(Locations) {
+//    fun getBy(owner: String, name: String, branch: String): LocationRow? {
+//        var ans: LocationRow? = null
+//        transaction {
+//            ans = Locations.select { Locations.owner eq owner }
+//                .andWhere { Locations.name eq name }
+//                .andWhere { Locations.branch eq branch }
+//                .andWhere { Locations.path eq path}
+//                .map { convert(it) }
+//                .firstOrNull()
+//        }
+//        return ans
+//    }
+//}
+//
+//object SampleService : AbstractParenService<Sample>(Samples, Samples.repoId, Repositories) {
+//    override val parentIdKey: String
+//        get() = "lib_id"
+//
+//    override fun convert(row: ResultRow): Sample {
+//        return Sample(
+//            id = row[Samples.id].value,
+//            repoId = row[Samples.repoId].value,
+//            libId = row[Samples.libId].value,
+//            name = row[Samples.name],
+//            buildSystem = row[Samples.buildSystem],
+//            path = row[Samples.path],
+//            description = row[Samples.description],
+//            topics = row[Samples.topics]
+//        )
+//    }
+//}
+//
+//object SnapshotService : AbstractParenService<Snapshot>(Snapshots, Snapshots.sampleId, Samples) {
+//    override val parentIdKey: String
+//        get() = "sample_id"
+//
+//    override fun convert(row: ResultRow): Snapshot {
+//        return Snapshot(
+//            id = row[Snapshots.id].value,
+//            sampleId = row[Snapshots.sampleId].value,
+//            sha = row[Snapshots.sha],
+//            status = row[Snapshots.status]
+//        )
+//    }
+//}
+//
+//object FileService : AbstractParenService<File>(Files, Files.snapshotId, Snapshots) {
+//    override val parentIdKey: String
+//        get() = "branch_id"
+//
+//    override fun convert(row: ResultRow): File {
+//        return File(
+//            id = row[Files.id].value,
+//            snapshotId = row[Files.snapshotId].value,
+//            path = row[Files.path],
+//            name = row[Files.name],
+//            extension = row[Files.extension],
+//            content = row[Files.content]
+//        )
+//    }
+//}
 
 object JobService : AbstractService<Job>(Jobs) {
     override fun convert(row: ResultRow): Job {

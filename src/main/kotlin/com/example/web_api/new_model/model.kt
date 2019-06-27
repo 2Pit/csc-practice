@@ -4,77 +4,83 @@ import org.jetbrains.exposed.dao.IntIdTable
 import org.jetbrains.exposed.sql.ResultRow
 
 /**
- *  Library    <------+
- *                    +
- *  Repository <--+ Sample <--+ Snapshot <--+ File
+ *
+ *  Location <--+ Sample <--+ Snapshot <--+ File
  *
  *  Job
  */
-object Repositories : IntIdTable() {
-    val owner = varchar("owner", 50)
-    val name = varchar("name", 50) // aka name
-    val branch = varchar("branch", 50)
+interface Service<R : DataRow, F : DataFilter> {
+    fun convert(row: ResultRow): R
 
-    fun convert(row: ResultRow): Repository {
-        return Repository(
-            id = row[id].value,
-            owner = row[owner],
-            name = row[name],
-            branch = row[branch]
-        )
-    }
+    fun getBy(filter: F): List<R>
+
+    fun getBy(id: Int): R?
 }
 
-object Libraries : IntIdTable() {
-    val owner = varchar("owner", 50)
-    val name = varchar("name", 50) // aka name
-    val description = text("description")
-    val topics = text("topics") // TODO to list
-
-    fun convert(row: ResultRow): Library {
-        return Library(
-            id = row[id].value,
-            owner = row[owner],
-            name = row[name],
-            description = row[description],
-            topics = row[topics]
-        )
+object Locations : IntIdTable(), Service<LocationRow, LocationFilter> {
+    override fun getBy(filter: LocationFilter): List<LocationRow> {
+        TODO("not implemented")
     }
-}
 
-object Samples : IntIdTable() {
-    val repoId = reference("repo_id", Repositories)
-    val libId = reference("lib_id", Libraries)
-    //    val validSnapshotId = reference("valid_snapshot_id", Snapshots).nullable() // TODO discuss
+    override fun getBy(id: Int): LocationRow? {
+        TODO("not implemented")
+    }
+
+    val owner = varchar("owner", 50)
     val name = varchar("name", 50)
-
-    val buildSystem = varchar("buildSystem", 50) // TODO to enum
+    val branch = varchar("branch", 50)
     val path = varchar("path", 100)
-    val description = text("description")
-    val topics = text("topics") // TODO to list
 
-    fun convert(row: ResultRow): Sample {
-        return Sample(
+    override fun convert(row: ResultRow): LocationRow {
+        return LocationRow(
             id = row[id].value,
-            repoId = row[repoId].value,
-            libId = row[libId].value,
+            owner = row[owner],
             name = row[name],
-            buildSystem = row[buildSystem],
-            path = row[path],
-            description = row[description],
-            topics = row[topics]
+            branch = row[branch],
+            path = row[path]
         )
     }
 }
 
-object Snapshots : IntIdTable() {
+object Samples : IntIdTable(), Service<SampleRow, SampleFilter> {
+    val locationId = reference("location_id", Locations)
+    val name = varchar("name", 50)
+    val buildSystem = varchar("buildSystem", 50) // TODO to enum
+
+    override fun getBy(id: Int): SampleRow? {
+        TODO("not implemented")
+    }
+
+    override fun getBy(filter: SampleFilter): List<SampleRow> {
+        TODO("not implemented")
+    }
+
+    override fun convert(row: ResultRow): SampleRow {
+        return SampleRow(
+            id = row[id].value,
+            locationId = row[locationId].value,
+            name = row[name],
+            buildSystem = row[buildSystem]
+        )
+    }
+}
+
+object Snapshots : IntIdTable(), Service<SnapshotRow, SampleFilter> {
     val sampleId = reference("sample_id", Samples)
     val sha = varchar("sha", 50)
     val status = varchar("status", 50)
-//    val archiveLink = text("archiveLink")
+    //    val archiveLink = text("archiveLink")
 
-    fun convert(row: ResultRow): Snapshot {
-        return Snapshot(
+    override fun getBy(id: Int): SnapshotRow? {
+        TODO("not implemented")
+    }
+
+    override fun getBy(filter: SampleFilter): List<SnapshotRow> {
+        TODO("not implemented")
+    }
+
+    override fun convert(row: ResultRow): SnapshotRow {
+        return SnapshotRow(
             id = row[id].value,
             sampleId = row[sampleId].value,
             sha = row[sha],
@@ -83,21 +89,31 @@ object Snapshots : IntIdTable() {
     }
 }
 
-object Files : IntIdTable() {
+object Files : IntIdTable(), Service<FileRow, FileFilter> {
     val snapshotId = reference("snapshot_id", Snapshots)
     val path = varchar("path", 50)
     val name = varchar("name", 50)
     val extension = varchar("extension", 50)
     val content = text("content")
+    val type = varchar("type", 50)
 
-    fun convert(row: ResultRow): File {
-        return File(
+    override fun getBy(filter: FileFilter): List<FileRow> {
+        TODO("not implemented")
+    }
+
+    override fun getBy(id: Int): FileRow? {
+        TODO("not implemented")
+    }
+
+    override fun convert(row: ResultRow): FileRow {
+        return FileRow(
             id = row[id].value,
             snapshotId = row[snapshotId].value,
             path = row[path],
             name = row[name],
             extension = row[extension],
-            content = row[content]
+            content = row[content],
+            type = row[type]
         )
     }
 }

@@ -2,6 +2,7 @@ package com.example.web_api.pipeline.git
 
 import com.example.git.Property
 import com.example.git.base64toUtf8
+import com.example.web_api.pipeline.Location
 import org.eclipse.egit.github.core.RepositoryContents
 import org.eclipse.egit.github.core.RepositoryContents.TYPE_DIR
 import org.eclipse.egit.github.core.RepositoryContents.TYPE_FILE
@@ -67,20 +68,20 @@ object SampleBuilder {
     private val contentService = ContentsService(client)
     private val dataService = DataService(client)
 
-    fun buildSample(request: SampleRequest): Sample {
-        val repository = RepositoryId.create(request.owner, request.name)
-        val firstLevel = contentService.getContents(repository, request.path)
+    fun buildSample(location: Location): Sample {
+        val repository = RepositoryId.create(location.owner, location.name)
+        val firstLevel = contentService.getContents(repository, location.path)
             .groupBy { it.type }
 
         firstLevel.values
             .flatten()
-            .forEach { it.path = it.path.removePrefix(request.path) }
+            .forEach { it.path = it.path.removePrefix(location.path) }
 
         val files = mutableListOf<SampleFile>()
         firstLevel[TYPE_FILE]?.mapTo(files) { downloadFile(repository, it) }
-        firstLevel[TYPE_DIR]?.forEach { rc ->
-            getBlobs(repository, rc.sha).mapTo(files) { treeEntry ->
-                downloadFile(repository, treeEntry, rc.path)
+        firstLevel[TYPE_DIR]?.forEach { repositoryContent ->
+            getBlobs(repository, repositoryContent.sha).mapTo(files) { treeEntry ->
+                downloadFile(repository, treeEntry, repositoryContent.path)
             }
         }
 

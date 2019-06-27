@@ -1,55 +1,87 @@
 package com.example.web_api.new_model
 
 /**
- *  Library    <------+
- *                    +
- *  Repository <--+ Sample <--+ Snapshot <--+ File
+ *
+ *  Location <--+ Sample <--+ Snapshot <--+ File
  *
  *  Job
  */
 
-data class Repository(
+/**
+ * Marker interface for non-null data classes.
+ */
+interface DataRow
+
+/**
+ * Marker interface for nullable data classes for searching in DB.
+ */
+interface DataFilter
+
+data class LocationRow(
     val id: Int,
     val owner: String,
-    val name: String,
-    val branch: String
-)
+    val name: String, // TODO split repository?
+    val branch: String,
+    val path: String
+) : DataRow
 
-data class Library(
+data class SampleRow(
     val id: Int,
-    val owner: String,
+    val locationId: Int,
     val name: String,
-    val description: String,
-    val topics: String
-)
+    val buildSystem: String
+): DataRow
 
-data class Sample(
-    val id: Int,
-    val repoId: Int,
-    val libId: Int,
-    val name: String,
-    val buildSystem: String,
-    val path: String,
-    val description: String,
-    val topics: String
-)
-
-data class Snapshot(
+data class SnapshotRow(
     val id: Int,
     val sampleId: Int,
     val sha: String,
     val status: String
 //    val archiveLink : String,
-)
+): DataRow
 
-data class File(
+data class FileRow(
     val id: Int,
     val snapshotId: Int,
     val path: String,
     val name: String,
     val extension: String,
+    val type: String,
     val content: String
-)
+): DataRow
+
+
+data class LocationFilter(
+    val id: Int? = null,
+    val owner: String? = null,
+    val name: String? = null,
+    val branch: String? = null,
+    val path: String? = null
+) : DataFilter
+
+data class SampleFilter(
+    val id: Int? = null,
+    val locationId: Int? = null,
+    val name: String? = null,
+    val buildSystem: String? = null
+) : DataFilter
+
+data class SnapshotFilter(
+    val id: Int? = null,
+    val sampleId: Int? = null,
+    val sha: String? = null,
+    val status: String? = null
+) : DataFilter
+
+data class FileFilter(
+    val id: Int? = null,
+    val snapshotId: Int? = null,
+    val path: String? = null,
+    val name: String? = null,
+    val extension: String? = null,
+    val type: String? = null,
+    val content: String? = null
+) : DataFilter
 
 
 data class Job(
