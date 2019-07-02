@@ -6,7 +6,7 @@ data class AddRequest(
 )
 
 data class Location(val owner: String, val repo: String, val path: String, val branch: String = "master") {
-    fun getPathAtLocatRepo(): String {
+    fun getPathAtLocalRepo(): String {
         return "/$owner/$repo/$branch/"
     }
 }

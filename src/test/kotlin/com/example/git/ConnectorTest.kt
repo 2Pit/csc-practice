@@ -4,6 +4,7 @@ import com.example.app.api.Location
 import com.example.app.git.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import java.io.File
 
 internal class ConnectorTest {
 
@@ -74,19 +75,20 @@ internal class ConnectorTest {
 
     @Test
     fun testWrite() {
-        val location = Location("2Pit", "test", "a/")
-        val sample = Sample(
-            listOf(
-                SampleFile("A1.txt", fileContent("A1")),
-                SampleFile("A2.txt", fileContent("A2")),
-                SampleFile("b/B1.txt", fileContent("B1")),
-                SampleFile("b/B2.txt", fileContent("B2")),
-                SampleFile("b/c/C1.txt", fileContent("C1")),
-                SampleFile("b/c/C2.txt", fileContent("C2"))
-            )
+        val files = listOf(
+            SampleFile("A1.txt", fileContent("A1")),
+            SampleFile("A2.txt", fileContent("A2")),
+            SampleFile("b/B1.txt", fileContent("B1")),
+            SampleFile("b/B2.txt", fileContent("B2")),
+            SampleFile("b/c/C1.txt", fileContent("C1")),
+            SampleFile("b/c/C2.txt", fileContent("C2"))
         )
 
-        write("/home/peter.bogdanov/IdeaProjects/csc-practice/out", location, sample)
+        val zipFile = File(
+            "/home/peter.bogdanov/IdeaProjects/csc-practice/out/test/a/b/c/d",
+            "test.zip"
+        )
+        files.compress().write(zipFile)
     }
 
     private fun fileContent(name: String): String {

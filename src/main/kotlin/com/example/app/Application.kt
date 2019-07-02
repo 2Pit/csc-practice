@@ -1,10 +1,8 @@
 package com.example.app
 
 import com.example.app.api.AddRequest
-import com.example.app.db.JobService
-import com.example.app.db.Repositories
-import com.example.app.db.Samples
-import com.example.app.db.Snapshots
+import com.example.app.api.myRoute
+import com.example.app.db.*
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.SerializationFeature
 import io.ktor.application.Application
@@ -60,6 +58,7 @@ fun Application.module(testing: Boolean = false) {
 //        myRoute("/libraries", LibraryService)
 //        myRoute("/repositories", RepositoryService)
 //        myRoute("/samples", SampleService)
+        myRoute("/jobs", Jobs)
     }
 
     routing {

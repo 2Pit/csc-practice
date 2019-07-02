@@ -1,8 +1,12 @@
 package com.example.app
 
+import arrow.core.extensions.`try`.monad.binding
+import arrow.core.getOrElse
 import com.example.app.api.AddRequest
 import com.example.app.db.JobService
+import com.example.app.db.Repositories
 import com.example.app.db.RepositoryFilter
+import com.example.app.git.*
 import com.example.git.Property
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache.Apache
@@ -11,12 +15,9 @@ import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.util.pipeline.Pipeline
 import io.ktor.util.pipeline.PipelinePhase
-import arrow.core.extensions.`try`.monad.binding
-import arrow.core.getOrElse
-import com.example.app.db.Repositories
-import com.example.app.git.*
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.experimental.transaction
+import java.io.File
 
 object Checker {
     private val locationChecker = PipelinePhase("LocationChecker")
@@ -82,7 +83,12 @@ object Checker {
         }
 
         checker.intercept(samplePublisher) {
-            val files = this.context.files
+            val ctx = this.context
+            val files = ctx.files!!
+            val zipFile = File("/home/peter.bogdanov/IdeaProjects/csc-practice/out/${this.context.addRequest.location.getPathAtLocalRepo()}", "test.zip")
+            files.compress().write(zipFile)
+
+            JobService.unpdate(ctx.jobId, "Done", "Zip file created.")
         }
     }
 

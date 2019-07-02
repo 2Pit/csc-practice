@@ -77,10 +77,17 @@ data class FileFilter(
 ) : DataFilter
 
 
-data class Job(
-    val id: Int,
+data class JobRow(
+    override val id: Int,
     val status: String,
     val description: String,
     val context: String
-)
+) : DataRow
+
+data class JobFilter(
+    override val id: Int? = null,
+    val status: String? = null,
+    val description: String? = null,
+    val context: String? = null
+) : DataFilter
 

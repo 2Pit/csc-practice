@@ -1,7 +1,11 @@
 package com.example.app.db
 
 import org.jetbrains.exposed.dao.IntIdTable
+import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.transactions.transaction
 
 /**
  *
@@ -23,7 +27,14 @@ object Repositories : IntIdTable(), Service<RepositoryRow, RepositoryFilter> {
     val branch = varchar("branch", 50)
 
     override fun getBy(filter: RepositoryFilter): List<RepositoryRow> {
-        TODO("not implemented")
+        return transaction {
+            select {
+                (filter.id?.let { id eq it } ?: Op.TRUE) and
+                        (filter.owner?.let { owner eq it } ?: Op.TRUE) and
+                        (filter.repo?.let { repo eq it } ?: Op.TRUE) and
+                        (filter.branch?.let { branch eq it } ?: Op.TRUE)
+            }.map { convert(it) }
+        }
     }
 
     override fun getBy(id: Int): RepositoryRow? {
@@ -44,7 +55,7 @@ object Samples : IntIdTable(), Service<SampleRow, SampleFilter> {
     val repositoryId = reference("repository_id", Repositories)
     val path = varchar("path", 100)
     val name = varchar("name", 50)
-    val validSnapshotId = reference("valid_snapshot_id",Snapshots).nullable()
+    val validSnapshotId = reference("valid_snapshot_id", Snapshots).nullable()
 //    val buildSystem = varchar("buildSystem", 50) // TODO to enum
 
     override fun getBy(id: Int): SampleRow? {
@@ -116,17 +127,27 @@ object Files : IntIdTable(), Service<FileRow, FileFilter> {
     }
 }
 
-object Jobs : IntIdTable() {
+object Jobs : IntIdTable(), Service<JobRow, JobFilter> {
     val status = varchar("status", 50) // new, in_progress, done, error
     val description = text("description")
     val context = text("context") // context in json format
 
-    fun convert(row: ResultRow): Job {
-        return Job(
+    override fun convert(row: ResultRow): JobRow {
+        return JobRow(
             id = row[id].value,
             status = row[status],
             description = row[description],
             context = row[context]
         )
+    }
+
+    override fun getBy(filter: JobFilter): List<JobRow> {
+        TODO("not implemented")
+    }
+
+    override fun getBy(id: Int): JobRow? {
+        return transaction {
+            Jobs.select { Jobs.id eq id }.map { convert(it) }.firstOrNull()
+        }
     }
 }

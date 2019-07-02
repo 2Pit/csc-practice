@@ -76,12 +76,12 @@ object Connector {
     }
 }
 
-fun compress(files: List<SampleFile>): ByteArrayOutputStream {
+fun List<SampleFile>.compress() : ByteArrayOutputStream {
     val zipResult = ByteArrayOutputStream()
 
     val zipOutputStream = ZipOutputStream(BufferedOutputStream(zipResult))
     zipOutputStream.use { zos ->
-        files.forEach { file ->
+        this.forEach { file ->
             zos.putNextEntry(ZipEntry(file.path))
             zos.write(file.content.toByteArray())
             zos.closeEntry()
@@ -90,10 +90,16 @@ fun compress(files: List<SampleFile>): ByteArrayOutputStream {
     return zipResult
 }
 
+fun ByteArrayOutputStream.write(file: File) {
+    file.parentFile.mkdirs()
+    this.writeTo(file.outputStream())
+}
+
+
 fun write(path: String, location: Location, sample: Sample) {
     sample.files.forEach { sf ->
         val file = File(
-            path + location.getPathAtLocatRepo(),
+            path + location.getPathAtLocalRepo(),
             sf.path
         )
         if (!file.exists()) {

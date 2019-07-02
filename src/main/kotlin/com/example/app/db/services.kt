@@ -124,9 +124,9 @@ abstract class AbstractParenService<T : Any>(
 //    }
 //}
 
-object JobService : AbstractService<Job>(Jobs) {
-    override fun convert(row: ResultRow): Job {
-        return Job(
+object JobService : AbstractService<JobRow>(Jobs) {
+    override fun convert(row: ResultRow): JobRow {
+        return JobRow(
             id = row[Jobs.id].value,
             status = row[Jobs.status],
             description = row[Jobs.description],
