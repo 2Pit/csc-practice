@@ -1,17 +1,21 @@
 package com.example.git
 
-import com.example.web_api.pipeline.git.Sample
-import com.example.web_api.pipeline.git.SampleBuilder
-import com.example.web_api.pipeline.git.SampleFile
-import com.example.web_api.pipeline.git.SampleRequest
+import com.example.app.api.Location
+import com.example.app.git.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
-internal class SampleBuilderTest {
+internal class ConnectorTest {
 
     @Test
     fun testGetBlobs() {
-        val result = SampleBuilder.buildSample(SampleRequest("2Pit", "test", "a/b/"))
+        val files = Connector.downloadProjectFiles(
+            Location(
+                "2Pit",
+                "test",
+                "a/b/"
+            )
+        )
         assertEquals(
             listOf(
                 SampleFile("B1.txt", fileContent("B1")),
@@ -19,13 +23,19 @@ internal class SampleBuilderTest {
                 SampleFile("c/C1.txt", fileContent("C1")),
                 SampleFile("c/C2.txt", fileContent("C2"))
             ),
-            result.files
+            files
         )
     }
 
     @Test
     fun testGetBlobs_2() {
-        val result = SampleBuilder.buildSample(SampleRequest("2Pit", "test", "/"))
+        val files = Connector.downloadProjectFiles(
+            Location(
+                "2Pit",
+                "test",
+                "/"
+            )
+        )
         assertEquals(
             listOf(
                 SampleFile("0.txt", fileContent("0")),
@@ -36,13 +46,19 @@ internal class SampleBuilderTest {
                 SampleFile("a/b/c/C1.txt", fileContent("C1")),
                 SampleFile("a/b/c/C2.txt", fileContent("C2"))
             ),
-            result.files
+            files
         )
     }
 
     @Test
     fun testGetBlobs_3() {
-        val result = SampleBuilder.buildSample(SampleRequest("2Pit", "test", "a/"))
+        val files = Connector.downloadProjectFiles(
+            Location(
+                "2Pit",
+                "test",
+                "a/"
+            )
+        )
         assertEquals(
             listOf(
                 SampleFile("A1.txt", fileContent("A1")),
@@ -52,13 +68,13 @@ internal class SampleBuilderTest {
                 SampleFile("b/c/C1.txt", fileContent("C1")),
                 SampleFile("b/c/C2.txt", fileContent("C2"))
             ),
-            result.files
+            files
         )
     }
 
     @Test
     fun testWrite() {
-        val sampleRequest = SampleRequest("2Pit", "test", "a/")
+        val location = Location("2Pit", "test", "a/")
         val sample = Sample(
             listOf(
                 SampleFile("A1.txt", fileContent("A1")),
@@ -70,7 +86,7 @@ internal class SampleBuilderTest {
             )
         )
 
-        SampleBuilder.write(sampleRequest, sample)
+        write("/home/peter.bogdanov/IdeaProjects/csc-practice/out", location, sample)
     }
 
     private fun fileContent(name: String): String {

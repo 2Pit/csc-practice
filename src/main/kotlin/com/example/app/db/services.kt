@@ -1,6 +1,5 @@
-package com.example.web_api.service
+package com.example.app.db
 
-import com.example.web_api.new_model.*
 import org.jetbrains.exposed.dao.EntityID
 import org.jetbrains.exposed.dao.IntIdTable
 import org.jetbrains.exposed.sql.*
@@ -62,9 +61,9 @@ abstract class AbstractParenService<T : Any>(
 }
 
 //
-//object LocationService : AbstractService<LocationRow>(Locations) {
-//    fun getBy(owner: String, name: String, branch: String): LocationRow? {
-//        var ans: LocationRow? = null
+//object LocationService : AbstractService<RepositoryRow>(Locations) {
+//    fun getBy(owner: String, name: String, branch: String): RepositoryRow? {
+//        var ans: RepositoryRow? = null
 //        transaction {
 //            ans = Locations.select { Locations.owner eq owner }
 //                .andWhere { Locations.name eq name }

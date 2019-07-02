@@ -1,16 +1,9 @@
-package com.example.web_api.pipeline
+package com.example.app
 
+import com.example.app.api.AddRequest
+import com.example.app.db.JobService
+import com.example.app.db.RepositoryFilter
 import com.example.git.Property
-import com.example.web_api.new_model.Libraries
-import com.example.web_api.new_model.LocationFilter
-import com.example.web_api.new_model.Locations
-import com.example.web_api.new_model.Repositories
-import com.example.web_api.pipeline.git.Connector
-import com.example.web_api.pipeline.git.SampleBuilder
-import com.example.web_api.pipeline.git.SampleRequest
-import com.example.web_api.pipeline.git.raise
-import com.example.web_api.service.JobService
-import com.example.web_api.service.RepositoryService
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache.Apache
 import io.ktor.client.request.header
@@ -18,44 +11,54 @@ import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.util.pipeline.Pipeline
 import io.ktor.util.pipeline.PipelinePhase
+import arrow.core.extensions.`try`.monad.binding
+import arrow.core.getOrElse
+import com.example.app.db.Repositories
+import com.example.app.git.*
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.transactions.experimental.transaction
 
 object Checker {
     private val locationChecker = PipelinePhase("LocationChecker")
     private val sampleChecker = PipelinePhase("SampleChecker")
+    private val samplePublisher = PipelinePhase("SamplePublisher")
 
-    val checker = Pipeline<Unit, CheckerContext>(locationChecker, sampleChecker)
+    val checker = Pipeline<Unit, CheckerContext>(
+        locationChecker,
+        sampleChecker,
+        samplePublisher
+    )
 
     init {
         checker.intercept(locationChecker) {
             val chCtx = this.context
             val location = chCtx.addRequest.location
 
-            val loc = Locations.getBy(
-                LocationFilter(
+            val repositories = Repositories.getBy(
+                RepositoryFilter(
                     owner = location.owner,
-                    name = location.name,
-                    branch = location.branch,
-                    path = location.path
+                    repo = location.repo,
+                    branch = location.branch
                 )
             )
-            if (loc.isNotEmpty()) {
+            if (repositories.isNotEmpty()) {
                 JobService.unpdate(chCtx.jobId, "In progress", "The Location already exist.")
                 return@intercept
             }
 
-            val repository = Connector.getRepository(location.owner, location.name)
-                .raise { JobService.unpdate(chCtx.jobId, "Err", "No such location.") }
-            val content = Connector.getContent(repository, location.path)
-                .raise { JobService.unpdate(chCtx.jobId, "Err", "No such location.") }
+            binding {
+                val (repository) = Connector.getRepository(location.owner, location.repo)
+                val (content) = Connector.getContent(repository, location.path)
+            }.getOrElse { ex ->
+                JobService.unpdate(chCtx.jobId, "Err", "No such location.")
+                throw ex
+            }
 
             transaction {
-                Locations.insert {
+                Repositories.insert {
                     it[owner] = location.owner
-                    it[name] = location.name
+                    it[repo] = location.repo
                     it[branch] = location.branch
-                    it[path] = location.path
                 }
             }
 
@@ -68,12 +71,18 @@ object Checker {
             val location = addRequest.location
 
             JobService.unpdate(chCtx.jobId, "In progress", "Sample checking.")
-            val sample = SampleBuilder.buildSample(location)
+            val files = Connector.downloadProjectFiles(location)
+//            val zipSampleOutputStream = compress(files)
 
 
 //                TODO: Turn on Jenkins
 //                SampleBuilder.write(sampleRequest, sample)
 //                notifyJenkins(sampleRequest)
+            this.context.files = files
+        }
+
+        checker.intercept(samplePublisher) {
+            val files = this.context.files
         }
     }
 
@@ -91,16 +100,4 @@ object Checker {
     }
 }
 
-data class CheckerContext(val jobId: Int, val addRequest: AddRequest)
-
-data class AddRequest(
-    val location: Location,
-    val sampleInfo: SampleInfo
-)
-
-data class Location(val owner: String, val name: String, val branch: String, val path: String)
-
-data class SampleInfo(
-    val name: String,
-    val buildSystem: String
-)
+data class CheckerContext(val jobId: Int, val addRequest: AddRequest, var files: List<SampleFile>? = null)

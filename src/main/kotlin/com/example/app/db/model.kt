@@ -1,4 +1,4 @@
-package com.example.web_api.new_model
+package com.example.app.db
 
 import org.jetbrains.exposed.dao.IntIdTable
 import org.jetbrains.exposed.sql.ResultRow
@@ -17,35 +17,35 @@ interface Service<R : DataRow, F : DataFilter> {
     fun getBy(id: Int): R?
 }
 
-object Locations : IntIdTable(), Service<LocationRow, LocationFilter> {
-    override fun getBy(filter: LocationFilter): List<LocationRow> {
-        TODO("not implemented")
-    }
-
-    override fun getBy(id: Int): LocationRow? {
-        TODO("not implemented")
-    }
-
+object Repositories : IntIdTable(), Service<RepositoryRow, RepositoryFilter> {
     val owner = varchar("owner", 50)
-    val name = varchar("name", 50)
+    val repo = varchar("name", 50)
     val branch = varchar("branch", 50)
-    val path = varchar("path", 100)
 
-    override fun convert(row: ResultRow): LocationRow {
-        return LocationRow(
+    override fun getBy(filter: RepositoryFilter): List<RepositoryRow> {
+        TODO("not implemented")
+    }
+
+    override fun getBy(id: Int): RepositoryRow? {
+        TODO("not implemented")
+    }
+
+    override fun convert(row: ResultRow): RepositoryRow {
+        return RepositoryRow(
             id = row[id].value,
             owner = row[owner],
-            name = row[name],
-            branch = row[branch],
-            path = row[path]
+            repo = row[repo],
+            branch = row[branch]
         )
     }
 }
 
 object Samples : IntIdTable(), Service<SampleRow, SampleFilter> {
-    val locationId = reference("location_id", Locations)
+    val repositoryId = reference("repository_id", Repositories)
+    val path = varchar("path", 100)
     val name = varchar("name", 50)
-    val buildSystem = varchar("buildSystem", 50) // TODO to enum
+    val validSnapshotId = reference("valid_snapshot_id",Snapshots).nullable()
+//    val buildSystem = varchar("buildSystem", 50) // TODO to enum
 
     override fun getBy(id: Int): SampleRow? {
         TODO("not implemented")
@@ -58,24 +58,28 @@ object Samples : IntIdTable(), Service<SampleRow, SampleFilter> {
     override fun convert(row: ResultRow): SampleRow {
         return SampleRow(
             id = row[id].value,
-            locationId = row[locationId].value,
+            repositoryId = row[repositoryId].value,
+            validSnapshotId = row[validSnapshotId]?.value,
             name = row[name],
-            buildSystem = row[buildSystem]
+            path = row[path]
         )
     }
 }
 
-object Snapshots : IntIdTable(), Service<SnapshotRow, SampleFilter> {
+object Snapshots : IntIdTable(), Service<SnapshotRow, SnapshotFilter> {
     val sampleId = reference("sample_id", Samples)
     val sha = varchar("sha", 50)
     val status = varchar("status", 50)
+    val buildSystem = varchar("buildSystem", 50) // TODO to enum
+    val readme = varchar("readme", 50) // TODO to enum
+//    val zipUrl
     //    val archiveLink = text("archiveLink")
 
     override fun getBy(id: Int): SnapshotRow? {
         TODO("not implemented")
     }
 
-    override fun getBy(filter: SampleFilter): List<SnapshotRow> {
+    override fun getBy(filter: SnapshotFilter): List<SnapshotRow> {
         TODO("not implemented")
     }
 
@@ -84,18 +88,16 @@ object Snapshots : IntIdTable(), Service<SnapshotRow, SampleFilter> {
             id = row[id].value,
             sampleId = row[sampleId].value,
             sha = row[sha],
-            status = row[status]
+            status = row[status],
+            buildSystem = row[buildSystem],
+            readme = row[readme]
         )
     }
 }
 
 object Files : IntIdTable(), Service<FileRow, FileFilter> {
-    val snapshotId = reference("snapshot_id", Snapshots)
-    val path = varchar("path", 50)
-    val name = varchar("name", 50)
-    val extension = varchar("extension", 50)
+    val snapshotId = reference("snapshot_id", Snapshots).primaryKey()
     val content = text("content")
-    val type = varchar("type", 50)
 
     override fun getBy(filter: FileFilter): List<FileRow> {
         TODO("not implemented")
@@ -109,11 +111,7 @@ object Files : IntIdTable(), Service<FileRow, FileFilter> {
         return FileRow(
             id = row[id].value,
             snapshotId = row[snapshotId].value,
-            path = row[path],
-            name = row[name],
-            extension = row[extension],
-            content = row[content],
-            type = row[type]
+            content = row[content].toByteArray()
         )
     }
 }

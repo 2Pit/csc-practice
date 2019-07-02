@@ -1,6 +1,6 @@
-package com.example.web_api.web
+package com.example.app.api
 
-import com.example.web_api.service.AbstractService
+import com.example.app.db.AbstractService
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond

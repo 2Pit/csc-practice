@@ -1,8 +1,8 @@
-package com.example.web_api.pipeline.git
+package com.example.app.git
 
 import com.example.git.Property
 import com.example.git.base64toUtf8
-import com.example.web_api.pipeline.Location
+import com.example.app.api.Location
 import org.eclipse.egit.github.core.RepositoryContents
 import org.eclipse.egit.github.core.RepositoryContents.TYPE_DIR
 import org.eclipse.egit.github.core.RepositoryContents.TYPE_FILE
@@ -68,8 +68,8 @@ object SampleBuilder {
     private val contentService = ContentsService(client)
     private val dataService = DataService(client)
 
-    fun buildSample(location: Location): Sample {
-        val repository = RepositoryId.create(location.owner, location.name)
+    fun downloadProjectFiles(location: Location): List<SampleFile> {
+        val repository = RepositoryId.create(location.owner, location.repo)
         val firstLevel = contentService.getContents(repository, location.path)
             .groupBy { it.type }
 
@@ -85,25 +85,10 @@ object SampleBuilder {
             }
         }
 
-        return Sample(files)
+        return files
     }
 
-    fun write(request: SampleRequest, sample: Sample) {
-        sample.files.forEach { sf ->
-            val file = File(
-                "/home/petr/Documents/Jenkins/repo_sample/${request.getPathAtLocatRepo()}",
-                sf.path
-            )
-            if (!file.exists()) {
-                file.parentFile.mkdirs()
-                file.createNewFile()
-            }
-            file.printWriter().use { out -> out.print(sf.content) }
-//            if (file.name == "gradlew") { // TODO fix gradle running
-            file.setExecutable(true)
-//            }
-        }
-    }
+
 
     private fun getBlobs(repository: RepositoryId, sha: String): List<TreeEntry> {
         val tree = dataService.getTree(repository, sha, true)

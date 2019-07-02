@@ -1,4 +1,4 @@
-package com.example.web_api
+package com.example.app
 
 import io.ktor.http.*
 import kotlin.test.*
