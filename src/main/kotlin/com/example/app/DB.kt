@@ -18,7 +18,6 @@ object DB {
                 Repositories,
                 Samples,
                 Snapshots,
-                Files,
                 Jobs
             )
 
@@ -64,19 +63,6 @@ object DB {
                 it[sha] = "sha3"
                 it[buildSystem] = "GRADLE"
                 it[readme] = "readme3"
-            }
-
-            Files.insert {
-                it[snapshotId] = EntityID(1, Snapshots)
-                it[content] = "content1"
-            }
-            Files.insert {
-                it[snapshotId] = EntityID(2, Snapshots)
-                it[content] = "content2"
-            }
-            Files.insert {
-                it[snapshotId] = EntityID(3, Snapshots)
-                it[content] = "content3"
             }
 
             Samples.update({ Samples.id eq 1 }) {

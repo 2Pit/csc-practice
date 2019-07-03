@@ -4,6 +4,7 @@ import org.eclipse.egit.github.core.RepositoryId
 import org.eclipse.egit.github.core.client.GitHubClient
 import org.eclipse.egit.github.core.service.ContentsService
 import org.eclipse.egit.github.core.service.DataService
+import java.io.File
 
 
 fun main() {
@@ -35,14 +36,15 @@ fun main() {
 
 
 object Property {
-    val props: Map<String, String> = Property.javaClass.getResourceAsStream("prop.txt")
+    private val projectDir = File("/home/peter.bogdanov/IdeaProjects/csc-practice/")
+    private val secretProps: Map<String, String> = Property.javaClass.getResourceAsStream("prop.txt")
         .reader()
         .readLines()
         .map { it.split("=") }
         .associate { it[0] to it[1] }
 
-    val githubToken = props["github.oauth2.token"]!!
-    val jenkinsAuth = props["jenkins.basic.auth"]!!
-    val jenkinsRunTaskToken = props["jenkins.run.token"]!!
-    val jenkinsPort = props["jenkins.port"]!!.toInt()
+    val githubToken = secretProps["github.oauth2.token"]!!
+    val jenkinsAuth = secretProps["jenkins.basic.auth"]!!
+    val jenkinsRunTaskToken = secretProps["jenkins.run.token"]!!
+    val jenkinsPort = secretProps["jenkins.port"]!!.toInt()
 }

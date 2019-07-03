@@ -3,7 +3,8 @@ package com.example.app
 import arrow.core.extensions.`try`.monad.binding
 import arrow.core.getOrElse
 import com.example.app.api.AddRequest
-import com.example.app.db.JobService
+import com.example.app.db.JobRow
+import com.example.app.db.Jobs
 import com.example.app.db.Repositories
 import com.example.app.db.RepositoryFilter
 import com.example.app.git.*
@@ -43,7 +44,7 @@ object Checker {
                 )
             )
             if (repositories.isNotEmpty()) {
-                JobService.unpdate(chCtx.jobId, "In progress", "The Location already exist.")
+                Jobs.insert(JobRow(-1, chCtx.jobId, "In progress", "he Location already exist.", ""))
                 return@intercept
             }
 
@@ -51,7 +52,7 @@ object Checker {
                 val (repository) = Connector.getRepository(location.owner, location.repo)
                 val (content) = Connector.getContent(repository, location.path)
             }.getOrElse { ex ->
-                JobService.unpdate(chCtx.jobId, "Err", "No such location.")
+                Jobs.insert(JobRow(-1, chCtx.jobId, "Err", "No such location.", ""))
                 throw ex
             }
 
@@ -63,7 +64,7 @@ object Checker {
                 }
             }
 
-            JobService.unpdate(chCtx.jobId, "In progress", "The Repository added.")
+            Jobs.insert(JobRow(-1, chCtx.jobId, "In progress", "The Repository added.", ""))
         }
 
         checker.intercept(sampleChecker) {
@@ -71,7 +72,7 @@ object Checker {
             val addRequest = chCtx.addRequest
             val location = addRequest.location
 
-            JobService.unpdate(chCtx.jobId, "In progress", "Sample checking.")
+            Jobs.insert(JobRow(-1, chCtx.jobId, "In progress", "Sample checking.", ""))
             val files = Connector.downloadProjectFiles(location)
 //            val zipSampleOutputStream = compress(files)
 
@@ -88,7 +89,7 @@ object Checker {
             val zipFile = File("/home/peter.bogdanov/IdeaProjects/csc-practice/out/${this.context.addRequest.location.getPathAtLocalRepo()}", "test.zip")
             files.compress().write(zipFile)
 
-            JobService.unpdate(ctx.jobId, "Done", "Zip file created.")
+            Jobs.insert(JobRow(-1, ctx.jobId, "Done", "Zip file created.", ""))
         }
     }
 

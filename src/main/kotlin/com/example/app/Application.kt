@@ -65,7 +65,7 @@ fun Application.module(testing: Boolean = false) {
 
         post("/add") {
             val addRequest = call.receive<AddRequest>()
-            val jobId = JobService.create(addRequest.toString())
+            val jobId = Jobs.insert(JobRow(-1, -1, "None", "", addRequest.toString()))
             async { Checker.checker.execute(CheckerContext(jobId, addRequest), Unit) }
             call.respond(mapOf("id" to jobId))
         }
