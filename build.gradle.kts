@@ -18,6 +18,7 @@ plugins {
     application
     kotlin("jvm") version "1.3.40"
     kotlin("kapt") version "1.3.40"
+    id("kotlinx-serialization") version "1.3.40"
 }
 
 group = "com.example"
@@ -56,6 +57,8 @@ dependencies {
     compile("io.arrow-kt:arrow-extras-data:$arrow_version")
     compile("io.arrow-kt:arrow-extras-extensions:$arrow_version")
     kapt("io.arrow-kt:arrow-meta:$arrow_version")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.11.1")
 
     testCompile("io.ktor:ktor-server-tests:$ktor_version")
     testImplementation("org.junit.jupiter:junit-jupiter:5.4.1")

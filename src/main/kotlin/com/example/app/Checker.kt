@@ -8,7 +8,6 @@ import com.example.app.db.Jobs
 import com.example.app.db.Repositories
 import com.example.app.db.RepositoryFilter
 import com.example.app.git.*
-import com.example.git.Property
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache.Apache
 import io.ktor.client.request.header
@@ -95,9 +94,9 @@ object Checker {
 
     private suspend fun notifyJenkins(request: SampleRequest) {
         HttpClient(Apache).use {
-            it.post<Unit>(port = Property.jenkinsPort, path = "job/item/buildWithParameters") {
-                header("Authorization", "Basic ${Property.jenkinsAuth}")
-                parameter("token", Property.jenkinsRunTaskToken)
+            it.post<Unit>(port = Properties.jenkinsPort, path = "job/item/buildWithParameters") {
+                header("Authorization", "Basic ${Properties.jenkinsAuth}")
+                parameter("token", Properties.jenkinsRunTaskToken)
                 parameter(
                     "full_sample_path",
                     request.getPathAtLocatRepo()

@@ -2,10 +2,13 @@ package com.example.app.git
 
 import arrow.core.Try
 import arrow.core.extensions.`try`.monadThrow.bindingCatch
+import com.example.app.Properties
 import com.example.app.api.Location
-import com.example.git.Property
 import com.example.git.base64toUtf8
-import org.eclipse.egit.github.core.*
+import org.eclipse.egit.github.core.Repository
+import org.eclipse.egit.github.core.RepositoryContents
+import org.eclipse.egit.github.core.RepositoryId
+import org.eclipse.egit.github.core.TreeEntry
 import org.eclipse.egit.github.core.client.GitHubClient
 import org.eclipse.egit.github.core.service.CommitService
 import org.eclipse.egit.github.core.service.ContentsService
@@ -16,7 +19,6 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
-
 import com.example.app.db.Repository as Repo
 
 
@@ -27,7 +29,7 @@ interface GitInteraction {
 }
 
 object Connector : GitInteraction {
-    private val client = GitHubClient().apply { setOAuth2Token(Property.githubToken) }
+    private val client = GitHubClient().apply { setOAuth2Token(Properties.githubToken) }
     val repositoryService = RepositoryService(client)
     val commitService = CommitService(client)
     val contentService = ContentsService(client)

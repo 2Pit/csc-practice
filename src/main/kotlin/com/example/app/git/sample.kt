@@ -1,6 +1,6 @@
 package com.example.app.git
 
-import com.example.git.Property
+import com.example.app.Properties
 import com.example.git.base64toUtf8
 import com.example.app.api.Location
 import org.eclipse.egit.github.core.RepositoryContents
@@ -53,7 +53,7 @@ data class SampleFile(
 )
 
 object SampleBuilder {
-    private val client = GitHubClient().apply { setOAuth2Token(Property.githubToken) }
+    private val client = GitHubClient().apply { setOAuth2Token(Properties.githubToken) }
     private val contentService = ContentsService(client)
     private val dataService = DataService(client)
 

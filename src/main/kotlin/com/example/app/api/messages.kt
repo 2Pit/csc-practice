@@ -10,11 +10,3 @@ data class Location(val owner: String, val repo: String, val path: String, val b
         return "/$owner/$repo/$branch/"
     }
 }
-
-data class SampleInfo(
-    val name: String,
-    val readmeMD: String,
-    val archiveId: Int,
-    val path: String
-// TODO add libs, tags
-)

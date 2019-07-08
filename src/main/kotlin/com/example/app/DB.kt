@@ -45,21 +45,21 @@ object DB {
 
             Snapshots.insert {
                 it[sampleId] = EntityID(1, Samples)
-                it[status] = "ok"
+                it[status] = "OK"
                 it[sha] = "sha1"
                 it[buildSystem] = "GRADLE"
                 it[readme] = "readme1"
             }
             Snapshots.insert {
                 it[sampleId] = EntityID(1, Samples)
-                it[status] = "ok"
+                it[status] = "OK"
                 it[sha] = "sha2"
                 it[buildSystem] = "GRADLE"
                 it[readme] = "readme2"
             }
             Snapshots.insert {
                 it[sampleId] = EntityID(1, Samples)
-                it[status] = "ok"
+                it[status] = "OK"
                 it[sha] = "sha3"
                 it[buildSystem] = "GRADLE"
                 it[readme] = "readme3"

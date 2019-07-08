@@ -10,8 +10,8 @@ object Snapshots : AbstractService<SnapshotRow, SnapshotFilter>() {
     val status = varchar("status", 10)
     val buildSystem = varchar("buildSystem", 10)
     val readme = text("readme")
-    val downloadLink = varchar("download_link", 100)
-    val checksum = varchar("checksum", 100)
+//    val downloadLink = varchar("download_link", 100)
+//    val checksum = varchar("checksum", 100)
 
     override fun buildFilterQuery(filter: SnapshotFilter): Query {
         TODO("not implemented")
@@ -24,9 +24,9 @@ object Snapshots : AbstractService<SnapshotRow, SnapshotFilter>() {
             sha = row[sha],
             status = SnapshotStatus.valueOf(row[status]),
             buildSystem = BuildSystem.valueOf(row[buildSystem]),
-            readme = row[readme],
-            downloadLink = row[downloadLink],
-            checksum = row[checksum]
+            readme = row[readme]
+//            downloadLink = row[downloadLink],
+//            checksum = row[checksum]
         )
     }
 }
@@ -45,9 +45,9 @@ data class SnapshotRow(
     val sha: String,
     val status: SnapshotStatus,
     val buildSystem: BuildSystem,
-    val readme: String,
-    val downloadLink: String,
-    val checksum: String
+    val readme: String
+//    val downloadLink: String,
+//    val checksum: String
 ) : DataRow
 
 data class SnapshotFilter(
@@ -55,7 +55,7 @@ data class SnapshotFilter(
     val sampleId: Int? = null,
     val sha: String? = null,
     val status: SnapshotStatus? = null,
-    val buildSystem: BuildSystem? = null,
-    val downloadLink: String,
-    val checksum: String
+    val buildSystem: BuildSystem? = null
+//    val downloadLink: String,
+//    val checksum: String
 ) : DataFilter

@@ -2,4 +2,4 @@
 gradle
 out
 _tmp
-src/main/resources/com/example/git/prop.txt
+src/main/resources/com/example/app/prop.txt
