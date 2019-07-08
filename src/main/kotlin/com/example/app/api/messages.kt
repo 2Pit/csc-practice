@@ -11,12 +11,6 @@ data class Location(val owner: String, val repo: String, val path: String, val b
     }
 }
 
-data class Repository(
-    val owner: String,
-    val name: String,
-    val branch: String
-)
-
 data class SampleInfo(
     val name: String,
     val readmeMD: String,

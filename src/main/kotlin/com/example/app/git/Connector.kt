@@ -1,14 +1,13 @@
 package com.example.app.git
 
 import arrow.core.Try
+import arrow.core.extensions.`try`.monadThrow.bindingCatch
 import com.example.app.api.Location
 import com.example.git.Property
 import com.example.git.base64toUtf8
-import org.eclipse.egit.github.core.Repository
-import org.eclipse.egit.github.core.RepositoryContents
-import org.eclipse.egit.github.core.RepositoryId
-import org.eclipse.egit.github.core.TreeEntry
+import org.eclipse.egit.github.core.*
 import org.eclipse.egit.github.core.client.GitHubClient
+import org.eclipse.egit.github.core.service.CommitService
 import org.eclipse.egit.github.core.service.ContentsService
 import org.eclipse.egit.github.core.service.DataService
 import org.eclipse.egit.github.core.service.RepositoryService
@@ -18,12 +17,21 @@ import java.io.File
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
+import com.example.app.db.Repository as Repo
 
-object Connector {
+
+interface GitInteraction {
+    fun getLatestCommitSha(repo: Repo, path: String): Try<String>
+    fun getDirSha(repo: Repo, commitSha: String, path: String = ""): Try<String>
+    fun downloadSample(repo: Repo, dirSha: String): Try<List<SampleFile>>
+}
+
+object Connector : GitInteraction {
     private val client = GitHubClient().apply { setOAuth2Token(Property.githubToken) }
-    private val repositoryService = RepositoryService(client)
-    private val contentService = ContentsService(client)
-    private val dataService = DataService(client)
+    val repositoryService = RepositoryService(client)
+    val commitService = CommitService(client)
+    val contentService = ContentsService(client)
+    val dataService = DataService(client)
 
     fun getRepository(owner: String, name: String): Try<Repository> {
         return Try { repositoryService.getRepository(owner, name) }
@@ -31,6 +39,41 @@ object Connector {
 
     fun getContent(repository: Repository, path: String): Try<MutableList<RepositoryContents>> {
         return Try { contentService.getContents(repository, path) }
+    }
+
+    override fun getDirSha(repo: Repo, commitSha: String, path: String): Try<String> =
+        bindingCatch {
+            if (path.isEmpty()) {
+                commitSha
+            } else {
+                val (parent, child) = File(path).run { parent to name }
+                val repository = repositoryService.getRepository(repo.owner, repo.name)
+                contentService.getContents(repository, parent, commitSha)
+                    .first { it.name == child }
+                    .sha
+            }
+        }
+
+
+    override fun getLatestCommitSha(repo: Repo, path: String): Try<String> {
+        return Try {
+            val cmts = Connector.commitService.getCommits(repo.toRepositoryId())
+            cmts.sortByDescending { it.commit.author.date }
+            cmts.first().sha
+        }
+    }
+
+    override fun downloadSample(repo: Repo, dirSha: String): Try<List<SampleFile>> {
+        return Try {
+            val repositoryId = RepositoryId.create(repo.owner, repo.name)
+            getBlobs(repositoryId, dirSha)
+                .map { treeEntry ->
+                    SampleFile(
+                        treeEntry.path,
+                        dataService.getBlob(repositoryId, treeEntry.sha).content.base64toUtf8()
+                    )
+                }
+        }
     }
 
     fun downloadProjectFiles(location: Location): List<SampleFile> {
@@ -76,7 +119,7 @@ object Connector {
     }
 }
 
-fun List<SampleFile>.compress() : ByteArrayOutputStream {
+fun List<SampleFile>.compress(): ByteArrayOutputStream {
     val zipResult = ByteArrayOutputStream()
 
     val zipOutputStream = ZipOutputStream(BufferedOutputStream(zipResult))
@@ -96,8 +139,8 @@ fun ByteArrayOutputStream.write(file: File) {
 }
 
 
-fun write(path: String, location: Location, sample: Sample) {
-    sample.files.forEach { sf ->
+fun write(path: String, location: Location, sample: List<SampleFile>) {
+    sample.forEach { sf ->
         val file = File(
             path + location.getPathAtLocalRepo(),
             sf.path

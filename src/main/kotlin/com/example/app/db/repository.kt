@@ -1,5 +1,6 @@
 package com.example.app.db
 
+import org.eclipse.egit.github.core.RepositoryId
 import org.jetbrains.exposed.sql.*
 
 object Repositories : AbstractService<RepositoryRow, RepositoryFilter>() {
@@ -14,14 +15,22 @@ object Repositories : AbstractService<RepositoryRow, RepositoryFilter>() {
                 (filter.branch?.let { branch eq it } ?: Op.TRUE)
     }
 
-    override fun convert(resultRow: ResultRow): RepositoryRow {
+    override fun convert(row: ResultRow): RepositoryRow {
         return RepositoryRow(
-            id = resultRow[id].value,
-            owner = resultRow[owner],
-            repo = resultRow[repo],
-            branch = resultRow[branch]
+            id = row[id].value,
+            owner = row[owner],
+            repo = row[repo],
+            branch = row[branch]
         )
     }
+}
+
+data class Repository(
+    val owner: String,
+    val name: String,
+    val branch: String
+) {
+    fun toRepositoryId(): RepositoryId = RepositoryId.create(owner, name)
 }
 
 class RepositoryRow(

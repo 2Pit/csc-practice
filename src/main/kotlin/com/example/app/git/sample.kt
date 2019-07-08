@@ -46,17 +46,6 @@ data class SampleRequest(
 }
 
 
-/**
- * The Sample class.
- * Contains metadata and list of files.
- *
- * @property files list of files
- */
-class Sample(
-    val files: List<SampleFile>
-//    val meta
-)
-
 data class SampleFile(
     val path: String,
 //    val name: String,
